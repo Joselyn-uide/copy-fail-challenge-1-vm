@@ -1,0 +1,55 @@
+--- /tmp/algif_aead_modificado.c	2026-05-17 17:24:03.591158289 -0500
++++ kernel/linux/linux-6.12/crypto/algif_aead.c	2026-05-17 15:30:39.244558726 -0500
+@@ -99,7 +99,7 @@
+ 	unsigned int i, as = crypto_aead_authsize(tfm);
+ 	struct af_alg_async_req *areq;
+ 	struct af_alg_tsgl *tsgl, *tmp;
+-	struct scatterlist *rsgl_src, *rsgl_src = NULL;
++	struct scatterlist *rsgl_src, *tsgl_src = NULL;
+ 	int err = 0;
+ 	size_t used = 0;		/* [in]  TX bufs to be en/decrypted */
+ 	size_t outlen = 0;		/* [out] RX bufs produced by kernel */
+@@ -185,13 +185,13 @@
+ 
+ 			if (!(process_sg->length) || !sg_page(process_sg))
+ 				continue;
+-			rsgl_src = process_sg;
++			tsgl_src = process_sg;
+ 			break;
+ 		}
+-		if (rsgl_src)
++		if (tsgl_src)
+ 			break;
+ 	}
+-	if (processed && !rsgl_src) {
++	if (processed && !tsgl_src) {
+ 		err = -EFAULT;
+ 		goto free;
+ 	}
+@@ -223,7 +223,7 @@
+ 		 *	    v	   v
+ 		 * RX SGL: AAD || PT || Tag
+ 		 */
+-		err = crypto_aead_copy_sgl(null_tfm, rsgl_src,
++		err = crypto_aead_copy_sgl(null_tfm, tsgl_src,
+ 					   areq->first_rsgl.sgl.sgt.sgl,
+ 					   processed);
+ 		if (err)
+@@ -242,7 +242,7 @@
+ 		 */
+ 
+ 		 /* Copy AAD || CT to RX SGL buffer for in-place operation. */
+-		err = crypto_aead_copy_sgl(null_tfm, rsgl_src,
++		err = crypto_aead_copy_sgl(null_tfm, tsgl_src,
+ 					   areq->first_rsgl.sgl.sgt.sgl,
+ 					   outlen);
+ 		if (err)
+@@ -279,7 +279,7 @@
+ 	}
+ 
+ 	/* Initialize the crypto operation */
+-	aead_request_set_crypt(&areq->cra_u.aead_req, rsgl_src,
++	aead_request_set_crypt(&areq->cra_u.aead_req, tsgl_src,
+ 			       areq->first_rsgl.sgl.sgt.sgl, used, ctx->iv);
+ 	aead_request_set_ad(&areq->cra_u.aead_req, ctx->aead_assoclen);
+ 	aead_request_set_tfm(&areq->cra_u.aead_req, tfm);
