@@ -1,0 +1,28 @@
+=== HITO 2: EXPLOIT EXITOSO ===
+Fecha: Sun May 17 17:53:56 UTC 2026
+Hostname: copy-fail-Joselyn-uide
+Identidad POST-exploit: uid=0(root) gid=0(root) groups=0(root)
+Kernel: 6.12.0
+SHA256 del exploit usado:
+b6e98e33cb4ed975e4b1b18985f4d119478eaaa8f458d6cb86a88577074c77b3  copy_fail_exp.py
+
+--- Salida del exploit ---
+[    3.652310] fail to initialize ptp_kvm
+-sh: can't access tty; job control turned off
+
+  Bienvenido al kernel vulnerable (CVE-2026-31431)
+  Usuario: uid=1001(student) gid=1001(student) groups=1001(student)
+  Kernel:  6.12.0
+
+[student@copy-fail ~]$ id
+uid=1001(student) gid=1001(student) groups=1001(student)
+[student@copy-fail ~]$ whoami
+student
+[student@copy-fail ~]$ ls
+copy_fail_exp.py
+[student@copy-fail ~]$ ./copy_fail_exp.py 
+sh: can't access tty; job control turned off
+[root@copy-fail /home/student]# id
+uid=0(root) gid=0(root) groups=0(root)
+[root@copy-fail /home/student]# whoami
+root
